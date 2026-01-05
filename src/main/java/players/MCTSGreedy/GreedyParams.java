@@ -1,3 +1,5 @@
+
+
 package players.MCTSGreedy;
 
 import core.AbstractGameState;
@@ -25,7 +27,10 @@ public class GreedyParams extends PlayerParameters {
         addTunableParameter("maxTreeDepth", 100, Arrays.asList(1, 3, 10, 30, 100));
         addTunableParameter("epsilon", 1e-6);
         addTunableParameter("heuristic", (IStateHeuristic) AbstractGameState::getHeuristicScore);
+        //This has been edited by Joshua Smith
+        // ----------------------------------------------------------
         addTunableParameter("treePolicy", Greedy);
+        // ----------------------------------------------------------
     }
 
     @Override

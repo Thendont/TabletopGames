@@ -23,8 +23,11 @@ public class UCTParams extends PlayerParameters {
         addTunableParameter("maxTreeDepth", 100, Arrays.asList(1, 3, 10, 30, 100));
         addTunableParameter("epsilon", 1e-6);
         addTunableParameter("heuristic", (IStateHeuristic) AbstractGameState::getHeuristicScore);
+        //This has been edited by Joshua Smith
+        // ----------------------------------------------------------
         addTunableParameter("pUCT", true);
         addTunableParameter("pUCTTemperature", 0.0);
+        // ----------------------------------------------------------
     }
 
     @Override
