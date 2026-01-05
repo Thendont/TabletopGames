@@ -13,7 +13,7 @@ import games.pandemic.PandemicForwardModel;
 import gui.AbstractGUIManager;
 import gui.GUI;
 import gui.GamePanel;
-import players.basicMCTS.BasicMCTSPlayer;
+import players.MCTSUCT.UCTPlayer;
 import players.human.ActionController;
 import players.human.HumanConsolePlayer;
 import players.human.HumanGUIPlayer;
