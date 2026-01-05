@@ -1,4 +1,4 @@
-package players.basicMCTS;
+package players.MCTSGreedy;
 
 import core.AbstractGameState;
 import core.actions.AbstractAction;
@@ -6,19 +6,22 @@ import players.PlayerConstants;
 import players.simple.RandomPlayer;
 import utilities.ElapsedCpuTimer;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toList;
 import static players.PlayerConstants.*;
 import static utilities.Utils.noise;
 
-class BasicTreeNode {
+class GreedyTreeNode {
     // Root node of tree
-    BasicTreeNode root;
+    GreedyTreeNode root;
     // Parent of this node
-    BasicTreeNode parent;
+    GreedyTreeNode parent;
     // Children of this node
-    Map<AbstractAction, BasicTreeNode> children = new HashMap<>();
+    Map<AbstractAction, GreedyTreeNode> children = new HashMap<>();
     // Depth of this node
     final int depth;
 
@@ -29,14 +32,14 @@ class BasicTreeNode {
     // Number of FM calls and State copies up until this node
     private int fmCallsCount;
     // Parameters guiding the search
-    private BasicMCTSPlayer player;
+    private GreedyPlayer player;
     private Random rnd;
     private RandomPlayer randomPlayer = new RandomPlayer();
 
     // State in this node (closed loop)
     private AbstractGameState state;
 
-    protected BasicTreeNode(BasicMCTSPlayer player, BasicTreeNode parent, AbstractGameState state, Random rnd) {
+    protected GreedyTreeNode(GreedyPlayer player, GreedyTreeNode parent, AbstractGameState state, Random rnd) {
         this.player = player;
         this.fmCallsCount = 0;
         this.parent = parent;
@@ -57,7 +60,7 @@ class BasicTreeNode {
      */
     void mctsSearch() {
 
-        BasicMCTSParams params = player.getParameters();
+        GreedyParams params = player.getParameters();
 
         // Variables for tracking time budget
         double avgTimeTaken;
@@ -79,7 +82,7 @@ class BasicTreeNode {
             ElapsedCpuTimer elapsedTimerIteration = new ElapsedCpuTimer();
 
             // Selection + expansion: navigate tree until a node not fully expanded is found, add a new node to the tree
-            BasicTreeNode selected = treePolicy();
+            GreedyTreeNode selected = treePolicy();
             // Monte carlo rollout: return value of MC rollout from the newly added node
             double delta = selected.rollOut();
             // Back up the value of the rollout through the tree
@@ -112,9 +115,9 @@ class BasicTreeNode {
      *
      * @return - new node added to the tree.
      */
-    private BasicTreeNode treePolicy() {
+    private GreedyTreeNode treePolicy() {
 
-        BasicTreeNode cur = this;
+        GreedyTreeNode cur = this;
 
         // Keep iterating while the state reached is not terminal and the depth of the tree is not exceeded
         while (cur.state.isNotTerminal() && cur.depth < player.getParameters().maxTreeDepth) {
@@ -153,7 +156,7 @@ class BasicTreeNode {
      *
      * @return - new child node.
      */
-    private BasicTreeNode expand() {
+    private GreedyTreeNode expand() {
         // Find random child not already created
         Random r = new Random(player.getParameters().getRandomSeed());
         // pick a random unchosen action
@@ -166,7 +169,7 @@ class BasicTreeNode {
         advance(nextState, chosen.copy());
 
         // then instantiate a new node
-        BasicTreeNode tn = new BasicTreeNode(player, this, nextState, rnd);
+        GreedyTreeNode tn = new GreedyTreeNode(player, this, nextState, rnd);
         children.put(chosen, tn);
         return tn;
     }
@@ -186,10 +189,10 @@ class BasicTreeNode {
         // Find child with highest UCB value, maximising for ourselves and minimizing for opponent
         AbstractAction bestAction = null;
         double bestValue = -Double.MAX_VALUE;
-        BasicMCTSParams params = player.getParameters();
+        GreedyParams params = player.getParameters();
 
         for (AbstractAction action : children.keySet()) {
-            BasicTreeNode child = children.get(action);
+            GreedyTreeNode child = children.get(action);
             if (child == null)
                 throw new AssertionError("Should not be here");
             else if (bestAction == null)
@@ -272,7 +275,7 @@ class BasicTreeNode {
      * @param result - value of rollout to backup
      */
     private void backUp(double result) {
-        BasicTreeNode n = this;
+        GreedyTreeNode n = this;
         while (n != null) {
             n.nVisits++;
             n.totValue += result;
@@ -292,7 +295,7 @@ class BasicTreeNode {
 
         for (AbstractAction action : children.keySet()) {
             if (children.get(action) != null) {
-                BasicTreeNode node = children.get(action);
+                GreedyTreeNode node = children.get(action);
                 double childValue = node.nVisits;
 
                 // Apply small noise to break ties randomly
