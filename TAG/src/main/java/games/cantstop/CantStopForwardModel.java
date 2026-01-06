@@ -107,7 +107,6 @@ public class CantStopForwardModel extends StandardForwardModel {
                 retValue.addAll(legalSingleNumbers);
                 if (retValue.isEmpty()) {
                     // in this case we have gone bust - not really a decision, but lets the player know
-                    
                     retValue.add(bust);
                 }
                 break;
